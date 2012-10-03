@@ -46,11 +46,23 @@ int tick = 0;
 //it is not called automaticaly
 void handleReceivedChar(unsigned char data)
 {
-	if (data == 'A')
-	{
-		PutsUART1("Prijal som znak A");
+	char s[128];
+	if (data >= 'A' && data <= 'Z') {
+		sprintf(s, "Prijal som znak %c\n",data);
+		PutsUART1(s);
 	}
-	else if (data == 'T' || data == 't')
+	if (data >= 'a' && data <= 'z') {
+		data += 'A'-'a';
+		sprintf(s, "Prijal som znak %c\n",data);
+		PutsUART1(s);
+	}
+
+	//if (data == 'A')
+	//{
+	//	PutsUART1("Prijal som znak A");
+	//}
+	//else
+	if (data == 'T' || data == 't')
 	{
 		char buf[20];
 		sprintf(buf, "t=%d\n",tick);
@@ -58,17 +70,91 @@ void handleReceivedChar(unsigned char data)
 	}
 }
 
+void handleReceivedChar2(unsigned char data)
+{
+	char s[128];
+	if (data >= 'A' && data <= 'Z') {
+		sprintf(s, "Prijal som znak %c\n",data);
+		PutsUART2(s);
+	}
+	if (data >= 'a' && data <= 'z') {
+		data += 'A'-'a';
+		sprintf(s, "Prijal som znak %c\n",data);
+		PutsUART2(s);
+	}
+
+	//if (data == 'A')
+	//{
+	//	PutsUART1("Prijal som znak A");
+	//}
+	//else
+	if (data == 'T' || data == 't')
+	{
+		char buf[20];
+		sprintf(buf, "t=%d\n",tick);
+		PutsUART2(buf);
+	}
+}
+
+void handleReceivedChar3(unsigned char data)
+{
+	char s[128];
+	if (data >= 'A' && data <= 'Z') {
+		sprintf(s, "Prijal som znak %c\n",data);
+		PutsUART3(s);
+	}
+	if (data >= 'a' && data <= 'z') {
+		data += 'A'-'a';
+		sprintf(s, "Prijal som znak %c\n",data);
+		PutsUART3(s);
+	}
+
+	//if (data == 'A')
+	//{
+	//	PutsUART1("Prijal som znak A");
+	//}
+	//else
+	if (data == 'T' || data == 't')
+	{
+		char buf[20];
+		sprintf(buf, "t=%d\n",tick);
+		PutsUART3(buf);
+	}
+}
+
+
 
 int main(void)
 {
-	initUSART1();	//configures all necessary to use USART1
+	/**
+	 * Zapojenie
+	 * UART1
+	 * fialova	pa10	rx
+	 * hneda	pa9		tx
+	 *
+	 * UART2
+	 * fialova	pa3		rx
+	 * hneda	pa2		tx
+	 *
+	 * UART3
+	 * fialova	pc11	rx
+	 * hneda	pc10	tx
+	 */
 
+	initUSART1();	//configures all necessary to use USART1
+	initUSART2();
+	initUSART3();
 	RegisterCallbackUART1(&handleReceivedChar);	//register function to be called when interrupt occurs
+	RegisterCallbackUART2(&handleReceivedChar2);
+	RegisterCallbackUART3(&handleReceivedChar3);
 	PutsUART1("Running USART1...\n");			//write something to usart to see some effect
 
     while(1)
     {
     	tick++;
+    	PutsUART1("Running USART1...\n");
+    	PutsUART2("Running USART2...\n");
+    	PutsUART3("Running USART3...\n");
     }
 
 	return 0;
