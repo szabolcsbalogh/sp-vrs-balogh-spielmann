@@ -29,6 +29,7 @@
 #include <stdio.h>
 #include "mcu.h"
 #include "usart.h"
+#include "adc.h"
 
 
 /**
@@ -141,19 +142,21 @@ int main(void)
 	 * hneda	pc10	tx
 	 */
 
-	initUSART1();	//configures all necessary to use USART1
-	initUSART2();
+	//initUSART1();	//configures all necessary to use USART1
+	//initUSART2();
 	initUSART3();
+	initADC();
+
 	RegisterCallbackUART1(&handleReceivedChar);	//register function to be called when interrupt occurs
 	RegisterCallbackUART2(&handleReceivedChar2);
 	RegisterCallbackUART3(&handleReceivedChar3);
-	PutsUART1("Running USART1...\n");			//write something to usart to see some effect
+	//PutsUART1("Running USART1...\n");			//write something to usart to see some effect
 
     while(1)
     {
     	tick++;
-    	PutsUART1("Running USART1...\n");
-    	PutsUART2("Running USART2...\n");
+    	//PutsUART1("Running USART1...\n");
+    	//PutsUART2("Running USART2...\n");
     	PutsUART3("Running USART3...\n");
     }
 
