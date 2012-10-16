@@ -30,6 +30,7 @@
 #include "mcu.h"
 #include "usart.h"
 #include "adc.h"
+#include "pwm.h"
 
 
 /**
@@ -139,6 +140,7 @@ int main(void)
 	  char s[1024];
   	uint16_t x_raw = 0;
   	uint16_t z_raw = 0;
+  	uint16_t t = 0;
 
 	/**
 	 * Zapojenie
@@ -163,17 +165,23 @@ int main(void)
 	RegisterCallbackUART3(&handleReceivedChar3);
 	PutsUART1("Running USART1 xx...\n");			//write something to usart to see some effect
 	adc_init();
+	TIM_Config();
+	PWM_Config(100);
     while(1)
     {
-
+    		t++;
+    		if(t>400) t = 0;
 
     	    z_raw = readADC(3, ADC1, ADC_SampleTime_96Cycles);
     	    x_raw = readADC(1, ADC1, ADC_SampleTime_96Cycles);
-
+    	    PWM_SetDC(1,(t<200 ? ( t<100 ? t:(200-t) ) : 0)); // modre
+    	    PWM_SetDC(2,(t>200 ? ( t<300 ? (t-200):(400-t)) :0));
+    	    PWM_SetDC(3,0);
+    	    PWM_SetDC(4,0);
     	    sprintf(s,"x: %u\n\n",x_raw, z_raw);
     	    PutsUART1(s);
 
-    	    delay_us(10000);
+    	    delay_us(1000);
     }
 
 	return 0;

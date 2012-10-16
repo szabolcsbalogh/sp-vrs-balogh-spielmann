@@ -17,6 +17,7 @@
 #include "stm32l1xx_conf.h"
 #include "stm32l1xx_i2c.h"
 #include "stm32l1xx_adc.h"
+#include "stm32l1xx_tim.h"
 
 void delay_us(unsigned long us);
 
