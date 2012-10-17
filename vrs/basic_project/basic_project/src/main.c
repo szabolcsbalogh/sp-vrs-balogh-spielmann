@@ -30,6 +30,7 @@
 #include "mcu.h"
 #include "usart.h"
 #include "adc.h"
+#include "timer.h"
 
 
 /**
@@ -124,6 +125,17 @@ void handleReceivedChar3(unsigned char data)
 }
 
 
+void timerInt(void)
+{
+	static uint16_t temp = 0;
+
+	temp += 100;
+
+	if (temp > 900) temp = 0;
+
+	TIM3->CCR2 = temp ;
+}
+
 
 int main(void)
 {
@@ -144,12 +156,18 @@ int main(void)
 
 	//initUSART1();	//configures all necessary to use USART1
 	//initUSART2();
-	initUSART3();
-	initADC();
+	//initUSART3();
+	//initADC();
 
-	RegisterCallbackUART1(&handleReceivedChar);	//register function to be called when interrupt occurs
-	RegisterCallbackUART2(&handleReceivedChar2);
-	RegisterCallbackUART3(&handleReceivedChar3);
+	initBaseTimer();
+	registerBaseTimerHandler((void*)&timerInt);
+	initPWM_Output_PC7();
+	TIM3->CCR1 = 0;
+
+
+	//RegisterCallbackUART1(&handleReceivedChar);	//register function to be called when interrupt occurs
+	//RegisterCallbackUART2(&handleReceivedChar2);
+	//RegisterCallbackUART3(&handleReceivedChar3);
 	//PutsUART1("Running USART1...\n");			//write something to usart to see some effect
 
     while(1)
@@ -157,7 +175,7 @@ int main(void)
     	tick++;
     	//PutsUART1("Running USART1...\n");
     	//PutsUART2("Running USART2...\n");
-    	PutsUART3("Running USART3...\n");
+    	//PutsUART3("Running USART3...\n");
     }
 
 	return 0;
