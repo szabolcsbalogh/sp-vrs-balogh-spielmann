@@ -181,14 +181,14 @@ int main(void)
     {
     		t++;
     		if(t>400) t = 0;
-    		TIM3->CCR1 = intensity;
-    		TIM3->CCR2 = intensity;
-    		TIM3->CCR3 = intensity;
-    		TIM3->CCR4 = intensity;
+    		//TIM9->CCR3 = intensity;
+    		//TIM9->CCR4 = intensity;
     		PWM_SetDC(1,intensity);
     		PWM_SetDC(2,intensity);
     	    //z_raw = readADC(3, ADC1, ADC_SampleTime_96Cycles);
-    	    //x_raw = readADC(1, ADC1, ADC_SampleTime_96Cycles);
+    	    x_raw = readADC(1, ADC1, ADC_SampleTime_96Cycles);
+    	    TIM9->CCR1 = (x_raw * 100 / 4096);
+    	    TIM9->CCR2 = (x_raw * 100 / 4096);
     	    //TIM3->CCR1 =  (t<200 ? ( t<100 ? t:(200-t) ) : 0);
     	    //PWM_SetDC(1,(t<200 ? ( t<100 ? t:(200-t) ) : 0)); // modre
     	    //PWM_SetDC(2,(t>200 ? ( t<300 ? (t-200):(400-t)) :0));
@@ -200,7 +200,7 @@ int main(void)
     		}
     		laststate = (GPIOA->IDR & 0x01);
 
-    		sprintf(s,"d:%u %d\n",intensity, 1);
+    		sprintf(s,"d:%u %d\n",intensity, x_raw);
     		PutsUART1(s);
 
     	    delay_us(10000);
