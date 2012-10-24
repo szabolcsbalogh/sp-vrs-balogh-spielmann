@@ -31,6 +31,8 @@
 #include "usart.h"
 #include "adc.h"
 #include "pwm.h"
+#include "i2c.h"
+#include "ads1100.h"
 
 uint16_t intensity=50;
 volatile unsigned char prevch = '\0';
@@ -137,6 +139,9 @@ int main(void)
   	uint16_t z_raw = 0;
   	uint16_t t = 0;
   	int laststate = 0;
+  	uint16_t pressure;
+  	double pr1;
+  	double pr2;
 
 	/**
 	 * Zapojenie
@@ -153,29 +158,31 @@ int main(void)
 	 * hneda	pc10	tx
 	 */
 
-	initUSART1();	//configures all necessary to use USART1
-	//initUSART2();
+	//initUSART1();	//configures all necessary to use USART1
+	initUSART2();
 	//initUSART3();
-	RegisterCallbackUART1(&handleReceivedChar);	//register function to be called when interrupt occurs
+	RegisterCallbackUART2(&handleReceivedChar);	//register function to be called when interrupt occurs
 	//RegisterCallbackUART2(&handleReceivedChar2);
 	//RegisterCallbackUART3(&handleReceivedChar3);
-	PutsUART1("Running USART1 xx...\n");			//write something to usart to see some effect
-	adc_init();
-	TIM_Config();
-	PWM_Config(100);
+	PutsUART2("Running USART1 xx...\n");			//write something to usart to see some effect
+	//adc_init();
+	//TIM_Config();
+	//PWM_Config(100);
 	//initBaseTimer();
 	//registerBaseTimerHandler(&handlerxx);
-	initPWM_Output();
+	//initPWM_Output();
 	//TIM3->CCR1 = 100;
 
-	GPIO_InitTypeDef GPIO_InitStructure;
+	/*GPIO_InitTypeDef GPIO_InitStructure;
 
 	GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_0;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
 	//GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
 	GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_40MHz;
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
+	GPIO_Init(GPIOA, &GPIO_InitStructure);*/
+	initI2C1();
+	initADS1100();
 
     while(1)
     {
@@ -183,25 +190,30 @@ int main(void)
     		if(t>400) t = 0;
     		//TIM9->CCR3 = intensity;
     		//TIM9->CCR4 = intensity;
-    		PWM_SetDC(1,intensity);
-    		PWM_SetDC(2,intensity);
+    		//PWM_SetDC(1,intensity);
+    		//PWM_SetDC(2,intensity);
     	    //z_raw = readADC(3, ADC1, ADC_SampleTime_96Cycles);
-    	    x_raw = readADC(1, ADC1, ADC_SampleTime_96Cycles);
-    	    TIM9->CCR1 = (x_raw * 100 / 4096);
-    	    TIM9->CCR2 = (x_raw * 100 / 4096);
+    	    //x_raw = readADC(1, ADC1, ADC_SampleTime_96Cycles);
+    	    //TIM9->CCR1 = (x_raw * 100 / 4096);
+    	    //TIM9->CCR2 = (x_raw * 100 / 4096);
     	    //TIM3->CCR1 =  (t<200 ? ( t<100 ? t:(200-t) ) : 0);
     	    //PWM_SetDC(1,(t<200 ? ( t<100 ? t:(200-t) ) : 0)); // modre
     	    //PWM_SetDC(2,(t>200 ? ( t<300 ? (t-200):(400-t)) :0));
     	    //PWM_SetDC(3,0);
     	    //PWM_SetDC(4,0);
-    		if((GPIOA->IDR & 0x01) == 1 && laststate == 0 ) {
-    			intensity += 10;
-    			if(intensity>100) intensity=0;
-    		}
-    		laststate = (GPIOA->IDR & 0x01);
+    		//if((GPIOA->IDR & 0x01) == 1 && laststate == 0 ) {
+    		//	intensity += 10;
+    		//	if(intensity>100) intensity=0;
+    		//}
+    		//laststate = (GPIOA->IDR & 0x01);
 
-    		sprintf(s,"d:%u %d\n",intensity, x_raw);
-    		PutsUART1(s);
+    		readDataADS1100(&pressure);
+    		pr1 = (double)pressure/(double)(6553.5); //hodnota->V 6553.5
+    		pr2 = (pr1/3.0+0.095)*1000/0.009; // V->Tlak
+
+    		//prevod (vout/3.0 + 0.095)/0.009; (_15-115 kPa)
+    		sprintf(s,"d:%u %f %f\n",pressure,pr1, pr2);
+    		PutsUART2(s);
 
     	    delay_us(10000);
     }
