@@ -29,8 +29,10 @@
 #include <stdio.h>
 #include "mcu.h"
 #include "usart.h"
-#include "adc.h"
-#include "timer.h"
+//#include "adc.h"
+//#include "timer.h"
+#include "ads1100.h"
+#include "i2c.h"
 
 
 /**
@@ -137,8 +139,14 @@ void timerInt(void)
 }
 
 
+
 int main(void)
 {
+	unsigned int data;
+	double preasure;
+	char s[1024];
+
+
 	/**
 	 * Zapojenie
 	 * UART1
@@ -155,14 +163,18 @@ int main(void)
 	 */
 
 	//initUSART1();	//configures all necessary to use USART1
-	//initUSART2();
+	initUSART2();
 	//initUSART3();
 	//initADC();
 
-	initBaseTimer();
-	registerBaseTimerHandler((void*)&timerInt);
-	initPWM_Output_PC7();
-	TIM3->CCR1 = 0;
+	//initBaseTimer();
+	//registerBaseTimerHandler((void*)&timerInt);
+	//initPWM_Output_PC7();
+	//TIM3->CCR1 = 0;
+
+
+	initI2C1();
+
 
 
 	//RegisterCallbackUART1(&handleReceivedChar);	//register function to be called when interrupt occurs
@@ -172,7 +184,24 @@ int main(void)
 
     while(1)
     {
+
+    	readDataADS1100(&data);
+
+    	preasure = data / 16384.0;
+
+    	preasure /= 8e-3;
+
+    	sprintf(s,"%f\n",preasure);
+
+    	PutsUART2(s);
+
     	tick++;
+
+
+
+
+
+
     	//PutsUART1("Running USART1...\n");
     	//PutsUART2("Running USART2...\n");
     	//PutsUART3("Running USART3...\n");
