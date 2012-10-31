@@ -46,7 +46,6 @@
 */
 
 int tick = 0;
-uint8_t gain=0;
 
 
 //this is a function handling received data
@@ -134,17 +133,13 @@ void timerInt(void)
 {
 	int conversion=0;
 	char s[1024];
-	const uint8_t gain_type[] = {1,2,4,5,8,10,16,32};
-	float u;
 
 	conversion = ADC_GetConversionValue(ADC1);
 
-			u = (conversion*3.3)/(4095 * gain_type[gain]);
-	    	sprintf(s,"U= %f G= %u\n",u,gain_type[gain]);
 
+	    	sprintf(s,"%u\n",conversion);
 
 	    	PutsUART2(s);
-
 }
 
 
@@ -200,18 +195,7 @@ int main(void)
 
     while(1)
     {
-    	conversion = ADC_GetConversionValue(ADC1);
-    	if ((conversion < 2500) && (gain<7))
-    			{
-    				gain++;
-    				mcp6s92_setings(CMD_MCP6S92_WRITE_TO_REG, MCP6S92_GAIN_REG_ADDRESS, gain);
-    			}
-
-    	if ((conversion > 3500) && (gain>0))
-    	    	{
-    	    		gain--;
-    	    		mcp6s92_setings(CMD_MCP6S92_WRITE_TO_REG, MCP6S92_GAIN_REG_ADDRESS, gain);
-    	    	}
+    	//conversion = ADC_GetConversionValue(ADC1);
 
 
     	//readDataADS1100(&data);
