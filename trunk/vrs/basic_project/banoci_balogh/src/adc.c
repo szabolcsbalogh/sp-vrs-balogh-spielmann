@@ -42,7 +42,7 @@ uint16_t readADC(uint8_t channel, ADC_TypeDef* ADCx, uint8_t SampleTime) {
 void ADCPeripheralInit() {
   ADC_Enable(ADC1); //Enable ADC1 to do the conversion
   ADC_IO_Init(GPIOA, GPIO_Pin_1); //PA1 connects to Accelerometer Z-axis
-  ADC_IO_Init(GPIOA, GPIO_Pin_3); //PA2 connects to Accelerometer X-axis
+  //ADC_IO_Init(GPIOA, GPIO_Pin_3); //PA2 connects to Accelerometer X-axis
 }
 
 
