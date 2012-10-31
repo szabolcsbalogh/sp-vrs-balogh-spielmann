@@ -201,7 +201,7 @@ int main(void)
     while(1)
     {
     	conversion = ADC_GetConversionValue(ADC1);
-    	if ((conversion < 2500) && (gain<7))
+    	if ((conversion < 2000) && (gain<7))
     			{
     				gain++;
     				mcp6s92_setings(CMD_MCP6S92_WRITE_TO_REG, MCP6S92_GAIN_REG_ADDRESS, gain);
