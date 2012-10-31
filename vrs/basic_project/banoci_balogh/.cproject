@@ -43,6 +43,7 @@
 									<listOptionValue builtIn="false" value="../hw/spi_devices/sst_flash/inc/"/>
 									<listOptionValue builtIn="false" value="../hw/i2c_devices/md25/inc"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/basic_project/hw/i2c_devices/ads1100/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/basic_project/hw/mcp6s92/inc}&quot;"/>
 								</option>
 								<option id="com.atollic.truestudio.common_options.target.endianess.1532108471" name="Endianess" superClass="com.atollic.truestudio.common_options.target.endianess" value="com.atollic.truestudio.common_options.target.endianess.little" valueType="enumerated"/>
 								<option id="com.atollic.truestudio.common_options.target.mcpu.942074645" name="Microcontroller" superClass="com.atollic.truestudio.common_options.target.mcpu" value="STM32L152RB" valueType="enumerated"/>

@@ -33,6 +33,9 @@
 #include "pwm.h"
 #include "i2c.h"
 #include "ads1100.h"
+#include "timer.h"
+#include "spi.h"
+#include "mcp6s92.h"
 
 uint16_t intensity=50;
 volatile unsigned char prevch = '\0';
@@ -128,21 +131,13 @@ int adc_init()
 	  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE); //enable clock for GPIOA
 	  RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE); //enable clock for ADC1
 
-	  ADCPeripheralInit();
+	  ADC_Enable(ADC1); //Enable ADC1 to do the conversion
+	  ADC_IO_Init(GPIOA, GPIO_Pin_1); //PA1 connects to Accelerometer Z-axis
 
 }
 
 int main(void)
 {
-	char s[1024];
-  	uint16_t x_raw = 0;
-  	uint16_t z_raw = 0;
-  	uint16_t t = 0;
-  	int laststate = 0;
-  	uint16_t pressure;
-  	double pr1;
-  	double pr2;
-
 	/**
 	 * Zapojenie
 	 * UART1
@@ -158,64 +153,48 @@ int main(void)
 	 * hneda	pc10	tx
 	 */
 
-	//initUSART1();	//configures all necessary to use USART1
+	char s[1024];
+  	uint16_t x_raw = 0;
+  	double x_real = 0.0;
+  	int gain_id = 0; // max 7
+  	int gains[] = {1,2,4,5,8,10,16,32};
+  	int gains_spi[] = {0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07};
+
 	initUSART2();
-	//initUSART3();
-	RegisterCallbackUART2(&handleReceivedChar);	//register function to be called when interrupt occurs
-	//RegisterCallbackUART2(&handleReceivedChar2);
-	//RegisterCallbackUART3(&handleReceivedChar3);
-	PutsUART2("Running USART1 xx...\n");			//write something to usart to see some effect
-	//adc_init();
-	//TIM_Config();
-	//PWM_Config(100);
+	RegisterCallbackUART2(&handleReceivedChar);
+	PutsUART2("Running USART1 xx...\n");
+	initBaseTimer();
+	registerBaseTimerHandler(&handlerxx);
+
+	adc_init();
 	//initBaseTimer();
-	//registerBaseTimerHandler(&handlerxx);
-	//initPWM_Output();
-	//TIM3->CCR1 = 100;
-
-	/*GPIO_InitTypeDef GPIO_InitStructure;
-
-	GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_0;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
-	//GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-	GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_40MHz;
-	GPIO_Init(GPIOA, &GPIO_InitStructure);*/
-	initI2C1();
-	initADS1100();
+	initSPI2();
+	initCS_Pin();
+	device_Unselect();
+	mcp6s92_setings(CMD_MCP6S92_WRITE_TO_REG,MCP6S92_CHANNEL_REG_ADDRESS,CHANNEL_0);
 
     while(1)
     {
-    		t++;
-    		if(t>400) t = 0;
-    		//TIM9->CCR3 = intensity;
-    		//TIM9->CCR4 = intensity;
-    		//PWM_SetDC(1,intensity);
-    		//PWM_SetDC(2,intensity);
-    	    //z_raw = readADC(3, ADC1, ADC_SampleTime_96Cycles);
-    	    //x_raw = readADC(1, ADC1, ADC_SampleTime_96Cycles);
-    	    //TIM9->CCR1 = (x_raw * 100 / 4096);
-    	    //TIM9->CCR2 = (x_raw * 100 / 4096);
-    	    //TIM3->CCR1 =  (t<200 ? ( t<100 ? t:(200-t) ) : 0);
-    	    //PWM_SetDC(1,(t<200 ? ( t<100 ? t:(200-t) ) : 0)); // modre
-    	    //PWM_SetDC(2,(t>200 ? ( t<300 ? (t-200):(400-t)) :0));
-    	    //PWM_SetDC(3,0);
-    	    //PWM_SetDC(4,0);
-    		//if((GPIOA->IDR & 0x01) == 1 && laststate == 0 ) {
-    		//	intensity += 10;
-    		//	if(intensity>100) intensity=0;
-    		//}
-    		//laststate = (GPIOA->IDR & 0x01);
 
-    		readDataADS1100(&pressure);
-    		pr1 = (double)pressure/(double)(6553.5); //hodnota->V 6553.5
-    		pr2 = (pr1/3.0+0.095)*1000/0.009; // V->Tlak
+    		mcp6s92_setings(CMD_MCP6S92_WRITE_TO_REG,MCP6S92_GAIN_REG_ADDRESS,gains_spi[gain_id]);
+    		x_raw = readADC(1, ADC1, ADC_SampleTime_96Cycles);
 
-    		//prevod (vout/3.0 + 0.095)/0.009; (_15-115 kPa)
-    		sprintf(s,"d:%u %f %f\n",pressure,pr1, pr2);
+    	    x_real = x_raw / 21845.0 / (double)gains[gain_id];
+    		if(x_raw > 0.9*65535) {
+    			//switch gain up
+    			if(gain_id>0) gain_id--;
+    			//PutsUART2("GD\n");
+    		} else
+    		if(x_raw < 0.40*65535) {
+    			//switch gain down
+    			//PutsUART2("GU\n");
+    			if(gain_id<7) gain_id++;
+    		}
+
+    		sprintf(s,"U = %f V, raw = %d, gain=%d\n",x_real, x_raw, gains[gain_id]);
     		PutsUART2(s);
 
-    	    delay_us(10000);
+    	    delay_us(100000);
     }
 
 	return 0;
