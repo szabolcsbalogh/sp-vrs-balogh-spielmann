@@ -27,14 +27,17 @@
 /* Includes */
 #include <stddef.h>
 #include <stdio.h>
+#include <inttypes.h>
 #include "mcu.h"
 #include "usart.h"
-#include "adc.h"
+//#include "adc.h"
 #include "timer.h"
-#include "ads1100.h"
-#include "i2c.h"
+//#include "ads1100.h"
+//#include "i2c.h"
 #include "spi.h"
-#include "mcp6s92.h"
+//#include "mcp6s92.h"
+#include "display.h"
+
 
 
 /**
@@ -132,7 +135,21 @@ void handleReceivedChar3(unsigned char data)
 
 void timerInt(void)
 {
-	int conversion=0;
+
+	static uint8_t pom = 0;
+
+	if (pom == 0)
+	{
+		pom = 1;
+		device_Unselect();
+	}
+	else
+	{
+		pom = 0;
+		device_Select();
+	}
+
+	/*int conversion=0;
 	char s[1024];
 	const uint8_t gain_type[] = {1,2,4,5,8,10,16,32};
 	float u;
@@ -144,6 +161,7 @@ void timerInt(void)
 
 
 	    	PutsUART2(s);
+	  */
 
 }
 
@@ -151,10 +169,13 @@ void timerInt(void)
 
 int main(void)
 {
+
+	display_init();
+
 	//unsigned int data;
-	double preasure;
-	char s[1024];
-	int conversion=0;
+	//double preasure;
+	//char s[1024];
+	//int conversion=0;
 
 
 	/**
@@ -175,20 +196,21 @@ int main(void)
 	//initUSART1();	//configures all necessary to use USART1
 	initUSART2();
 	//initUSART3();
-	initADC();
-	initBaseTimer();
+	//initADC();
 
-	registerBaseTimerHandler((void*)&timerInt);
+	//initBaseTimer();
+
+	//registerBaseTimerHandler((void*)&timerInt);
 	//initPWM_Output_PC7();
 	//TIM3->CCR1 = 0;
 
 
 	//initI2C1();
-	initSPI2();
-	initCS_Pin();
+	//initSPI2();
+	//initCS_Pin();
 
-	mcp6s92_setings(CMD_MCP6S92_WRITE_TO_REG, MCP6S92_CHANNEL_REG_ADDRESS, CHANNEL_0);
-	mcp6s92_setings(CMD_MCP6S92_WRITE_TO_REG, MCP6S92_GAIN_REG_ADDRESS, GAIN_1);
+	//mcp6s92_setings(CMD_MCP6S92_WRITE_TO_REG, MCP6S92_CHANNEL_REG_ADDRESS, CHANNEL_0);
+	//mcp6s92_setings(CMD_MCP6S92_WRITE_TO_REG, MCP6S92_GAIN_REG_ADDRESS, GAIN_1);
 
 
 	//RegisterCallbackUART1(&handleReceivedChar);	//register function to be called when interrupt occurs
@@ -197,10 +219,12 @@ int main(void)
 	//PutsUART1("Running USART1...\n");			//write something to usart to see some effect
 
 
-
     while(1)
     {
-    	conversion = ADC_GetConversionValue(ADC1);
+
+
+
+    	/*conversion = ADC_GetConversionValue(ADC1);
     	if ((conversion < 2500) && (gain<7))
     			{
     				gain++;
@@ -212,7 +236,7 @@ int main(void)
     	    		gain--;
     	    		mcp6s92_setings(CMD_MCP6S92_WRITE_TO_REG, MCP6S92_GAIN_REG_ADDRESS, gain);
     	    	}
-
+		*/
 
     	//readDataADS1100(&data);
 
