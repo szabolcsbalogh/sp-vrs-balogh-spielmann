@@ -7,6 +7,7 @@
 
 
 #include "usart.h"
+#include <inttypes.h>
 
 
 /* USART Communication boards Interface */
