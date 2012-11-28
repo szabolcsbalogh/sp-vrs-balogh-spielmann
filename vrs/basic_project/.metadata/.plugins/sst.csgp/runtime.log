@@ -28,3 +28,13 @@ GUI is waiting for subprocess to be done...
 Execution done. EXIT CODE = 0
   Logging finished.  ## CURRENT TIME  : [11/7, 2012   14:35  23.489]
 ------------------------------------
+
+------------------------------------
+  Logging start.  ## CURRENT TIME  : [11/28, 2012   13:3  26.426]  ## COMMAND LINE  : 
+cmd /C "gen_csini.exe"
+------------------------------------
+[STD-IN] : C:\Users\student\Desktop\BanociDodok\sp-vrs-balogh-spielmann\vrs\basic_project\.metadata\.plugins\sst.csgp\bin\env_vars.txt
+GUI is waiting for subprocess to be done...
+Execution done. EXIT CODE = 0
+  Logging finished.  ## CURRENT TIME  : [11/28, 2012   13:3  29.24]
+------------------------------------

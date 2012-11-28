@@ -172,6 +172,7 @@ int main(void)
 
 	display_init();
 
+	display_all_points_on();
 	//unsigned int data;
 	//double preasure;
 	//char s[1024];
